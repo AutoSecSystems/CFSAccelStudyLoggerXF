@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Xamarin.Essentials;
 using Xamarin.Forms;
+using AccelStudyLoggerXF.MovementTest;
 
 namespace AccelStudyLoggerXF
 {
@@ -102,6 +103,11 @@ namespace AccelStudyLoggerXF
                 Title = "Share CSV",
                 File = new ShareFile(path)
             });
+        }
+
+        async void MovementTest_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new MovementTestPage());
         }
     }
 }

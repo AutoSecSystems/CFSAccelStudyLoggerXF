@@ -34,6 +34,7 @@
       </Grid>
 
       <Button x:Name="ExportBtn" Text="Export and Share CSV" Clicked="Export_Clicked" IsEnabled="False"/>
+      <Button Text="Movement Test (Live)" Clicked="MovementTest_Clicked" />
 
       <Label Text="Tip: Ensure Bluetooth is ON. On some devices, Location must be ON for BLE scan." FontSize="Small" />
 
