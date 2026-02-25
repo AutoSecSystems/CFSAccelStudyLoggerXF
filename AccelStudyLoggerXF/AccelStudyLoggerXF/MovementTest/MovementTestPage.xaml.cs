@@ -9,6 +9,7 @@ namespace AccelStudyLoggerXF.MovementTest
     public partial class MovementTestPage : ContentPage
     {
         private const string PrefPrefix = "MovementTest.";
+        private const int DefaultDedupWindowSec = 30;
 
         private IBleAdvScanner _scanner;
         private MovementOptions _options;
@@ -16,6 +17,9 @@ namespace AccelStudyLoggerXF.MovementTest
         private readonly Dictionary<string, MovementDetector> _detectors = new Dictionary<string, MovementDetector>();
         private bool _scanning;
         private DateTime _lastUiRefreshUtc = DateTime.MinValue;
+        private string _lastEventKey;
+        private DateTime _lastEventShownUtc = DateTime.MinValue;
+        private TimeSpan _dedupWindow = TimeSpan.FromSeconds(DefaultDedupWindowSec);
 
         public MovementTestPage()
         {
@@ -37,6 +41,8 @@ namespace AccelStudyLoggerXF.MovementTest
 
             ApplyOptionsFromUi();
             _detectors.Clear();
+            _lastEventKey = null;
+            _lastEventShownUtc = DateTime.MinValue;
             _scanning = true;
             StartScanBtn.IsEnabled = false;
             StopScanBtn.IsEnabled = true;
@@ -105,6 +111,25 @@ namespace AccelStudyLoggerXF.MovementTest
 
         private void ShowResult(MovementDetectionResult result)
         {
+            if (result.Classification == MovementClassification.REAL_MOVE)
+            {
+                var eventKey = result.EventKey;
+                var now = DateTime.UtcNow;
+                if (!string.IsNullOrWhiteSpace(eventKey) &&
+                    string.Equals(eventKey, _lastEventKey, StringComparison.Ordinal) &&
+                    (now - _lastEventShownUtc) < _dedupWindow)
+                {
+                    System.Diagnostics.Debug.WriteLine("Skipped duplicate event key within window");
+                    return;
+                }
+
+                if (!string.IsNullOrWhiteSpace(eventKey))
+                {
+                    _lastEventKey = eventKey;
+                    _lastEventShownUtc = now;
+                }
+            }
+
             if (result.Classification == MovementClassification.REAL_MOVE)
             {
                 ResultFrame.BackgroundColor = Color.FromHex("#B7F7C4");
@@ -185,6 +210,8 @@ namespace AccelStudyLoggerXF.MovementTest
             updated.StrongNoPostShiftDur250Ms = ReadInt(StrongNoPostShiftDur250MsEntry.Text, updated.StrongNoPostShiftDur250Ms);
             updated.SendNotRealEvents = SendNotRealSwitch.IsToggled;
             updated.AllowedObjTypes = ParseIntList(AllowedObjTypesEntry.Text, updated.AllowedObjTypes);
+            var dedupWindowSec = ReadInt(DedupWindowSecEntry.Text, DefaultDedupWindowSec);
+            _dedupWindow = TimeSpan.FromSeconds(Math.Max(1, dedupWindowSec));
             _options = updated;
         }
 
@@ -207,6 +234,7 @@ namespace AccelStudyLoggerXF.MovementTest
             StrongNoPostShiftDur250MsEntry.Text = options.StrongNoPostShiftDur250Ms.ToString();
             SendNotRealSwitch.IsToggled = options.SendNotRealEvents;
             AllowedObjTypesEntry.Text = string.Join(",", options.AllowedObjTypes ?? new List<int>());
+            DedupWindowSecEntry.Text = Preferences.Get(PrefPrefix + nameof(DefaultDedupWindowSec), DefaultDedupWindowSec).ToString();
         }
 
         private void SaveOptionsToPreferences(MovementOptions options)
@@ -228,6 +256,7 @@ namespace AccelStudyLoggerXF.MovementTest
             Preferences.Set(PrefPrefix + nameof(options.StrongNoPostShiftDur250Ms), options.StrongNoPostShiftDur250Ms);
             Preferences.Set(PrefPrefix + nameof(options.SendNotRealEvents), options.SendNotRealEvents);
             Preferences.Set(PrefPrefix + nameof(options.AllowedObjTypes), string.Join(",", options.AllowedObjTypes ?? new List<int>()));
+            Preferences.Set(PrefPrefix + nameof(DefaultDedupWindowSec), ReadInt(DedupWindowSecEntry.Text, DefaultDedupWindowSec));
         }
 
         private void LoadOptionsFromPreferences()
@@ -253,6 +282,9 @@ namespace AccelStudyLoggerXF.MovementTest
                 SendNotRealEvents = Preferences.Get(PrefPrefix + nameof(defaults.SendNotRealEvents), defaults.SendNotRealEvents),
                 AllowedObjTypes = ParseIntList(Preferences.Get(PrefPrefix + nameof(defaults.AllowedObjTypes), "1"), new List<int> { 1 })
             };
+
+            var dedupWindowSec = Preferences.Get(PrefPrefix + nameof(DefaultDedupWindowSec), DefaultDedupWindowSec);
+            _dedupWindow = TimeSpan.FromSeconds(Math.Max(1, dedupWindowSec));
         }
 
         private static int ReadInt(string text, int fallback)

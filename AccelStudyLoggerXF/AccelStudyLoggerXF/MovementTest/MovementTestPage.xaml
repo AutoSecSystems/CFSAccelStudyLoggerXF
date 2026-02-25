@@ -34,6 +34,7 @@
             <Switch x:Name="SendNotRealSwitch" />
             <Label Text="SendNotRealEvents" FontSize="Small" />
             <Entry x:Name="AllowedObjTypesEntry" Placeholder="AllowedObjTypes (comma-separated)" />
+            <Entry x:Name="DedupWindowSecEntry" Placeholder="Dedup Window (sec)" Keyboard="Numeric" />
 
             <Grid ColumnSpacing="8" RowSpacing="8">
                 <Grid.ColumnDefinitions>
