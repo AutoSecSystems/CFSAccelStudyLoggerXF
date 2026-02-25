@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AccelStudyLoggerXF.MainPage"
+             Title="Accel Study Logger">
+  <ScrollView>
+    <StackLayout Padding="16" Spacing="10">
+
+      <Entry x:Name="MacEntry" Placeholder="Tag MAC (e.g., BC:57:29:03:F1:F1)" />
+      <Entry x:Name="ContainerEntry" Placeholder="Container No" />
+      <Entry x:Name="LocationEntry" Placeholder="Location/Slot (e.g., A11)" />
+      <Editor x:Name="NotesEditor" Placeholder="Notes (optional)" AutoSize="TextChanges" />
+
+      <Label x:Name="StatusLabel" Text="Status: Idle" />
+      <Label x:Name="StatsLabel" Text="Packets: 0 | Last RSSI: -" />
+
+      <Button x:Name="StartBtn" Text="Start Session" Clicked="StartSession_Clicked"/>
+      <Button x:Name="StopBtn" Text="Stop Session" Clicked="StopSession_Clicked" IsEnabled="False"/>
+
+      <Grid ColumnSpacing="10" RowSpacing="10">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Button Text="Lift Start" Grid.Row="0" Grid.Column="0" Clicked="LiftStart_Clicked"/>
+        <Button Text="Lift Off" Grid.Row="0" Grid.Column="1" Clicked="LiftOff_Clicked"/>
+        <Button Text="Set Down" Grid.Row="1" Grid.Column="0" Clicked="SetDown_Clicked"/>
+        <Button Text="Touch/Vibration" Grid.Row="1" Grid.Column="1" Clicked="Touch_Clicked"/>
+      </Grid>
+
+      <Button x:Name="ExportBtn" Text="Export and Share CSV" Clicked="Export_Clicked" IsEnabled="False"/>
+
+      <Label Text="Tip: Ensure Bluetooth is ON. On some devices, Location must be ON for BLE scan." FontSize="Small" />
+
+    </StackLayout>
+  </ScrollView>
+</ContentPage>
