@@ -134,7 +134,11 @@ namespace AccelStudyLoggerXF.MovementTest
 
                     if ((now - _candidateStartUtc).TotalSeconds > _options.CandidateMaxWindowSec)
                     {
-                        ResetToIdle(mag);
+                        var result = FinalizeCandidateAsNotReal(now, mag);
+                        _lastPacketUtc = now;
+                        _lastMag = mag;
+                        UpdateSnapshot(now, mag, delta);
+                        return result;
                     }
                     else if (_deltaPeak >= _options.ConfirmPeak || _dur250Ms >= _options.ConfirmDur250Ms)
                     {
@@ -143,7 +147,11 @@ namespace AccelStudyLoggerXF.MovementTest
                     }
                     else if (delta <= _options.QuietDelta)
                     {
-                        ResetToIdle(mag);
+                        var result = FinalizeCandidateAsNotReal(now, mag);
+                        _lastPacketUtc = now;
+                        _lastMag = mag;
+                        UpdateSnapshot(now, mag, delta);
+                        return result;
                     }
                     break;
 
@@ -221,7 +229,7 @@ namespace AccelStudyLoggerXF.MovementTest
         private MovementDetectionResult FinalizeEvent()
         {
             var postShift = _mode == MovementMode.Settling ? (int?)_postShiftPeak : null;
-            var classificationText = Classify(_deltaPeak, _dur250Ms, _dur350Ms, postShift);
+            var classificationText = Classify(_deltaPeak, _dur250Ms, postShift);
             var classification = classificationText == "REAL_MOVE"
                 ? MovementClassification.REAL_MOVE
                 : MovementClassification.NOT_REAL;
@@ -252,14 +260,51 @@ namespace AccelStudyLoggerXF.MovementTest
             return result;
         }
 
-        private static string Classify(int peak, int dur250, int dur350, int? postShift)
+        private MovementDetectionResult FinalizeCandidateAsNotReal(DateTime now, int mag)
         {
-            var ruleA = peak >= 500 && dur250 >= 2000;
-            var ruleB = dur250 >= 3000 && dur350 >= 1000 && peak >= 300;
-            var ruleC = postShift.HasValue && dur250 >= 6000 && peak >= 300 && postShift.Value >= 100;
-            var ruleD = dur250 >= 7000 && peak >= 400;
+            var result = new MovementDetectionResult
+            {
+                Classification = MovementClassification.NOT_REAL,
+                TagMac = _tagMac,
+                GatewayMac = _gatewayMac,
+                StartUtc = _candidateStartUtc,
+                EndUtc = now,
+                PeakDelta = _deltaPeak,
+                Duration250Ms = _dur250Ms,
+                Duration350Ms = _dur350Ms,
+                PostShift = 0,
+                EventKey = _eventKeyGenerator.Generate(_tagMac, _gatewayMac, _candidateStartUtc, now)
+            };
 
-            return (ruleA || ruleB || ruleC || ruleD) ? "REAL_MOVE" : "NOT_REAL";
+            ResetToIdle(mag);
+            _log?.Invoke("Movement candidate finalized: NOT_REAL");
+            return result;
+        }
+
+        private static string Classify(int peak, int dur250, int? postShift)
+        {
+            if (dur250 < 1000)
+                return "NOT_REAL";
+
+            var ruleStrong =
+                peak >= 500 &&
+                dur250 >= 2000 &&
+                postShift.HasValue &&
+                postShift.Value >= 100;
+
+            var ruleSmooth =
+                dur250 >= 6000 &&
+                peak >= 250 &&
+                postShift.HasValue &&
+                postShift.Value >= 100;
+
+            var ruleVeryStrongLong =
+                peak >= 800 &&
+                dur250 >= 6000;
+
+            return (ruleStrong || ruleSmooth || ruleVeryStrongLong)
+                ? "REAL_MOVE"
+                : "NOT_REAL";
         }
 
         private void ResetToIdle(int mag)
