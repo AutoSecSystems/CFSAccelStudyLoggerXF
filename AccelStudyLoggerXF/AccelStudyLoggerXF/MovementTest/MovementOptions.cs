@@ -13,10 +13,10 @@ namespace AccelStudyLoggerXF.MovementTest
         public int SettleDelta { get; set; } = 180;
         public int SettleQuietSamples { get; set; } = 3;
         public int EndQuietSamples { get; set; } = 4;
-        public int NoMessageEndMs { get; set; } = 1500;
+        public int NoMessageEndMs { get; set; } = 3000;
         public int CandidateMaxWindowSec { get; set; } = 10;
         public int CooldownSec { get; set; } = 20;
-        public int PostShiftThreshold { get; set; } = 150;
+        public int PostShiftThreshold { get; set; } = 100;
         public int StrongNoPostShiftPeak { get; set; } = 600;
         public int StrongNoPostShiftDur250Ms { get; set; } = 3000;
         public bool SendNotRealEvents { get; set; } = false;

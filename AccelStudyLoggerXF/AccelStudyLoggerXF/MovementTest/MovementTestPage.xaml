@@ -48,7 +48,7 @@
                 <Button Text="Apply" Grid.Row="0" Grid.Column="0" Clicked="Apply_Clicked" />
                 <Button Text="Save Preset" Grid.Row="0" Grid.Column="1" Clicked="SavePreset_Clicked" />
                 <Button Text="Load Preset" Grid.Row="1" Grid.Column="0" Clicked="LoadPreset_Clicked" />
-                <Button Text="Production Preset" Grid.Row="1" Grid.Column="1" Clicked="ProductionPreset_Clicked" />
+                <Button Text="Field Validation Preset" Grid.Row="1" Grid.Column="1" Clicked="ProductionPreset_Clicked" />
             </Grid>
 
             <Label Text="Live Metrics" FontAttributes="Bold" />

@@ -220,10 +220,11 @@ namespace AccelStudyLoggerXF.MovementTest
 
         private MovementDetectionResult FinalizeEvent()
         {
-            var postShift = _postShiftPeak;
-            var strongNoPostShift = _deltaPeak >= _options.StrongNoPostShiftPeak && _dur250Ms >= _options.StrongNoPostShiftDur250Ms;
-            var isRealMove = postShift >= _options.PostShiftThreshold || strongNoPostShift;
-            var classification = isRealMove ? MovementClassification.REAL_MOVE : MovementClassification.NOT_REAL;
+            var postShift = _mode == MovementMode.Settling ? (int?)_postShiftPeak : null;
+            var classificationText = Classify(_deltaPeak, _dur250Ms, _dur350Ms, postShift);
+            var classification = classificationText == "REAL_MOVE"
+                ? MovementClassification.REAL_MOVE
+                : MovementClassification.NOT_REAL;
 
             var eventKey = _eventKeyGenerator.Generate(_tagMac, _gatewayMac, _moveStartUtc, _moveEndUtc);
 
@@ -237,7 +238,7 @@ namespace AccelStudyLoggerXF.MovementTest
                 PeakDelta = _deltaPeak,
                 Duration250Ms = _dur250Ms,
                 Duration350Ms = _dur350Ms,
-                PostShift = postShift,
+                PostShift = postShift ?? 0,
                 EventKey = eventKey
             };
 
@@ -249,6 +250,16 @@ namespace AccelStudyLoggerXF.MovementTest
             }
 
             return result;
+        }
+
+        private static string Classify(int peak, int dur250, int dur350, int? postShift)
+        {
+            var ruleA = peak >= 500 && dur250 >= 2000;
+            var ruleB = dur250 >= 3000 && dur350 >= 1000 && peak >= 300;
+            var ruleC = postShift.HasValue && dur250 >= 6000 && peak >= 300 && postShift.Value >= 100;
+            var ruleD = dur250 >= 7000 && peak >= 400;
+
+            return (ruleA || ruleB || ruleC || ruleD) ? "REAL_MOVE" : "NOT_REAL";
         }
 
         private void ResetToIdle(int mag)
