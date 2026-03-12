@@ -122,7 +122,7 @@ namespace AccelStudyLoggerXF.MovementTest
                 UpdateCandidate(record, delta, dtMs);
                 var elapsedMs = (int)Math.Max(0, (now - _candidateStartUtc).TotalMilliseconds);
 
-                if (ShouldConfirm())
+                if (elapsedMs >= _options.CandidateTargetWindowMs && ShouldConfirm())
                 {
                     result = BuildResult(MoveStartClassification.REAL_MOVE, "confirmed_short_window", now);
                     _mode = MoveStartDetectorMode.Triggered;

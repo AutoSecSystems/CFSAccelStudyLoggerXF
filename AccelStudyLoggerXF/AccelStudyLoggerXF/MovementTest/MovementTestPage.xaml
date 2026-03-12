@@ -6,6 +6,28 @@
     <ScrollView>
         <StackLayout Padding="16" Spacing="10">
             <Entry x:Name="MacFilterEntry" Placeholder="Tag MAC filter (optional)" />
+
+            <Label Text="Detector Tuning (runtime only)" FontAttributes="Bold" />
+            <Grid ColumnSpacing="8" RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" VerticalTextAlignment="Center" Text="Target Window (sec)" />
+                <Entry x:Name="TargetWindowEntry" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" />
+
+                <Label Grid.Row="1" Grid.Column="0" VerticalTextAlignment="Center" Text="Max Window (sec)" />
+                <Entry x:Name="MaxWindowEntry" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" />
+
+                <Button x:Name="ApplyTuningBtn" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Apply" Clicked="ApplyTuning_Clicked" />
+            </Grid>
+
             <Grid ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />

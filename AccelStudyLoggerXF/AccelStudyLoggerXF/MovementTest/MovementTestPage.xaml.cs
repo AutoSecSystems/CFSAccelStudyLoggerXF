@@ -8,6 +8,8 @@ namespace AccelStudyLoggerXF.MovementTest
     {
         private readonly IBleAdvScanner _scanner;
         private readonly MoveStartOptions _options = MoveStartOptions.Defaults();
+        private const int DefaultTargetWindowSeconds = 3;
+        private const int DefaultMaxWindowSeconds = 5;
         private readonly Dictionary<string, MoveStartDetector> _detectors = new Dictionary<string, MoveStartDetector>();
 
         private bool _scanning;
@@ -17,6 +19,8 @@ namespace AccelStudyLoggerXF.MovementTest
         {
             InitializeComponent();
             _scanner = DependencyService.Get<IBleAdvScanner>();
+
+            ResetRuntimeTuningFields();
         }
 
         private async void StartScan_Clicked(object sender, EventArgs e)
@@ -32,6 +36,40 @@ namespace AccelStudyLoggerXF.MovementTest
             StartScanBtn.IsEnabled = false;
             StopScanBtn.IsEnabled = true;
             _scanner.StartScan(OnPacket);
+        }
+
+
+        private async void ApplyTuning_Clicked(object sender, EventArgs e)
+        {
+            var targetText = (TargetWindowEntry?.Text ?? string.Empty).Trim();
+            var maxText = (MaxWindowEntry?.Text ?? string.Empty).Trim();
+
+            if (!int.TryParse(targetText, out var targetSeconds) || targetSeconds <= 0)
+            {
+                await DisplayAlert("Invalid tuning", "Target Window must be a number greater than 0.", "OK");
+                return;
+            }
+
+            if (!int.TryParse(maxText, out var maxSeconds) || maxSeconds < targetSeconds)
+            {
+                await DisplayAlert("Invalid tuning", "Max Window must be a number greater than or equal to Target Window.", "OK");
+                return;
+            }
+
+            _options.CandidateTargetWindowMs = targetSeconds * 1000;
+            _options.CandidateMaxWindowMs = maxSeconds * 1000;
+
+            _detectors.Clear();
+
+            await DisplayAlert("Applied", $"Detector windows updated (Target: {targetSeconds}s, Max: {maxSeconds}s).", "OK");
+        }
+
+        private void ResetRuntimeTuningFields()
+        {
+            TargetWindowEntry.Text = DefaultTargetWindowSeconds.ToString();
+            MaxWindowEntry.Text = DefaultMaxWindowSeconds.ToString();
+            _options.CandidateTargetWindowMs = DefaultTargetWindowSeconds * 1000;
+            _options.CandidateMaxWindowMs = DefaultMaxWindowSeconds * 1000;
         }
 
         private void StopScan_Clicked(object sender, EventArgs e)
