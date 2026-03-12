@@ -13,7 +13,7 @@ namespace AccelStudyLoggerXF.MovementTest
         public int MinMotionSamples { get; set; } = 3;
         public int MinPersistence { get; set; } = 2;
         public double EnergyThreshold { get; set; } = 300000d;
-        public int MinActiveDurationMs { get; set; } = 220;
+        public int MinActiveDurationMs { get; set; } = 1000;
         public int OrientationShiftThreshold { get; set; } = 260;
 
         public MoveStartOptions Clone()
