@@ -4,63 +4,51 @@
              x:Class="AccelStudyLoggerXF.MovementTest.MovementTestPage"
              Title="Movement Test (Live)">
     <ScrollView>
-        <StackLayout Padding="16" Spacing="8">
+        <StackLayout Padding="16" Spacing="10">
             <Entry x:Name="MacFilterEntry" Placeholder="Tag MAC filter (optional)" />
+
+            <Label Text="Detector Tuning (runtime only)" FontAttributes="Bold" />
+            <Grid ColumnSpacing="8" RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" VerticalTextAlignment="Center" Text="Target Window (sec)" />
+                <Entry x:Name="TargetWindowEntry" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" />
+
+                <Label Grid.Row="1" Grid.Column="0" VerticalTextAlignment="Center" Text="Max Window (sec)" />
+                <Entry x:Name="MaxWindowEntry" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" />
+
+                <Button x:Name="ApplyTuningBtn" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Apply" Clicked="ApplyTuning_Clicked" />
+            </Grid>
+
             <Grid ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Button Text="Start Scan" Clicked="StartScan_Clicked" Grid.Column="0" x:Name="StartScanBtn" />
-                <Button Text="Stop Scan" Clicked="StopScan_Clicked" Grid.Column="1" x:Name="StopScanBtn" IsEnabled="False" />
+                <Button x:Name="StartScanBtn" Text="Start Scan" Clicked="StartScan_Clicked" Grid.Column="0" />
+                <Button x:Name="StopScanBtn" Text="Stop Scan" Clicked="StopScan_Clicked" Grid.Column="1" IsEnabled="False" />
             </Grid>
 
-            <Label Text="Parameters" FontAttributes="Bold" />
-            <Entry x:Name="QuietDeltaEntry" Placeholder="QuietDelta" Keyboard="Numeric" />
-            <Entry x:Name="WakeDeltaEntry" Placeholder="WakeDelta" Keyboard="Numeric" />
-            <Entry x:Name="ConfirmPeakEntry" Placeholder="ConfirmPeak" Keyboard="Numeric" />
-            <Entry x:Name="ConfirmDur250MsEntry" Placeholder="ConfirmDur250Ms" Keyboard="Numeric" />
-            <Entry x:Name="Delta250Entry" Placeholder="Delta250" Keyboard="Numeric" />
-            <Entry x:Name="Delta350Entry" Placeholder="Delta350" Keyboard="Numeric" />
-            <Entry x:Name="SettleDeltaEntry" Placeholder="SettleDelta" Keyboard="Numeric" />
-            <Entry x:Name="SettleQuietSamplesEntry" Placeholder="SettleQuietSamples" Keyboard="Numeric" />
-            <Entry x:Name="EndQuietSamplesEntry" Placeholder="EndQuietSamples" Keyboard="Numeric" />
-            <Entry x:Name="NoMessageEndMsEntry" Placeholder="NoMessageEndMs" Keyboard="Numeric" />
-            <Entry x:Name="CandidateMaxWindowSecEntry" Placeholder="CandidateMaxWindowSec" Keyboard="Numeric" />
-            <Entry x:Name="CooldownSecEntry" Placeholder="CooldownSec" Keyboard="Numeric" />
-            <Entry x:Name="PostShiftThresholdEntry" Placeholder="PostShiftThreshold" Keyboard="Numeric" />
-            <Entry x:Name="StrongNoPostShiftPeakEntry" Placeholder="StrongNoPostShiftPeak" Keyboard="Numeric" />
-            <Entry x:Name="StrongNoPostShiftDur250MsEntry" Placeholder="StrongNoPostShiftDur250Ms" Keyboard="Numeric" />
-            <Switch x:Name="SendNotRealSwitch" />
-            <Label Text="SendNotRealEvents" FontSize="Small" />
-            <Entry x:Name="AllowedObjTypesEntry" Placeholder="AllowedObjTypes (comma-separated)" />
-            <Entry x:Name="DedupWindowSecEntry" Placeholder="Dedup Window (sec)" Keyboard="Numeric" />
-
-            <Grid ColumnSpacing="8" RowSpacing="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Button Text="Apply" Grid.Row="0" Grid.Column="0" Clicked="Apply_Clicked" />
-                <Button Text="Save Preset" Grid.Row="0" Grid.Column="1" Clicked="SavePreset_Clicked" />
-                <Button Text="Load Preset" Grid.Row="1" Grid.Column="0" Clicked="LoadPreset_Clicked" />
-                <Button Text="Production Preset" Grid.Row="1" Grid.Column="1" Clicked="ProductionPreset_Clicked" />
-            </Grid>
-
-            <Label Text="Live Metrics" FontAttributes="Bold" />
+            <Label Text="Live Status" FontAttributes="Bold" />
             <Label x:Name="ModeLabel" Text="Mode: Idle" />
-            <Label x:Name="MagLabel" Text="aMag: - | baseMag: - | delta: -" />
-            <Label x:Name="DurationLabel" Text="deltaPeak: - | dur250ms: - | dur350ms: -" />
-            <Label x:Name="PacketLabel" Text="last packet: - | RSSI: -" />
+            <Label x:Name="TagLabel" Text="Tag: - | RSSI: -" />
+            <Label x:Name="MagnitudeLabel" Text="aMag: - | baseline: - | delta: -" />
+            <Label x:Name="MetricsLabel" Text="peak: - | activeMs: - | motion: -" />
+            <Label x:Name="PersistenceEnergyLabel" Text="persistence: - | energy: - | orientShift: -" />
+            <Label x:Name="PacketLabel" Text="last packet: -" />
 
-            <Label Text="Last Result" FontAttributes="Bold" />
-            <Frame Padding="10" CornerRadius="6" x:Name="ResultFrame" BackgroundColor="#DDDDDD">
+            <Label Text="Final Result" FontAttributes="Bold" />
+            <Frame x:Name="ResultFrame" Padding="12" CornerRadius="6" BackgroundColor="#E6E6E6">
                 <StackLayout>
-                    <Label x:Name="ResultBanner" Text="No finalized event yet" FontAttributes="Bold" HorizontalOptions="Center" />
+                    <Label x:Name="ResultBanner" Text="No detection result yet" FontAttributes="Bold" HorizontalOptions="Center" />
                     <Label x:Name="ResultDetails" Text="-" FontSize="Small" />
                 </StackLayout>
             </Frame>
